@@ -1,0 +1,31 @@
+apiVersion: skaffold/v2beta10
+kind: Config
+metadata:
+    name: {{cookiecutter.project_slug}}
+build:
+    local:
+      concurrency: 0
+    artifacts:
+        - image: {{cookiecutter.project_slug}}-cuda-dvc
+          docker:
+            buildArgs:
+              SOURCE: determinedai/environments:cuda-11.3-pytorch-1.10-tf-2.8-gpu-0.19.1
+          context: docker/environment
+        - image: {{cookiecutter.project_slug}}-dvc
+          docker:
+            buildArgs:
+              SOURCE: determinedai/environments:py-3.8-pytorch-1.10-tf-2.8-cpu-0.19.1
+          context: docker/environment
+        - image: {{cookiecutter.project_slug}}-submitter
+          context: docker/submitter
+            
+deploy:
+  helm:
+    releases:
+      - name: {{cookiecutter.project_slug}}-det-submitter
+        chartPath: "charts/detkpv"
+        namespace: determined
+        artifactOverrides:
+          images.environments.gpu: {{cookiecutter.project_slug}}-cuda-dvc
+          images.environments.cpu: {{cookiecutter.project_slug}}-dvc
+          images.submitter: submitter

@@ -1,0 +1,41 @@
+description: ${NAME} notebook GPU
+resources:
+  slots: 1
+environment:
+  image: ${IMAGE_GPU}
+  pod_spec:
+    apiVersion: v1
+    kind: Pod
+    spec:
+      runtimeClassName: nvidia
+      imagePullSecrets:
+        - name: ${IMAGEPULLSECRET}
+      containers:
+        - name: determined-container
+          resources:
+            requests:
+              memory: "64Mi"
+              cpu: "1"
+          volumeMounts:
+            - name: dvc-cache
+              mountPath: /data/persistent-cache
+            - name: per-node-cache
+              mountPath: /data/node-cache
+            - name: notebooks
+              mountPath: /run/determined/workdir/persistent-storage
+          envFrom:
+          - secretRef:
+              name: ${STORAGE_SECRET}
+      volumes:
+        - name: dvc-cache
+          persistentVolumeClaim:
+            claimName: ${NETWORKCACHE}
+        - name: per-node-cache
+          persistentVolumeClaim:
+            claimName: ${LOCALCACHE}
+        - name: notebooks
+          persistentVolumeClaim:
+            claimName: ${NOTEBOOKS}
+  environment_variables:
+    - GIT_SSH_COMMAND=ssh -i /root/.ssh/id_rsa
+notebook_idle_type: activity

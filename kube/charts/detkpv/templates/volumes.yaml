@@ -1,0 +1,50 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{.Release.Name}}-dvc-cache
+spec:
+  storageClassName: "nfs"
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 100Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{.Release.Name}}-notebooks-persistence
+spec:
+  storageClassName: "nfs"
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 10Gi
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: {{.Release.Name}}-local-cache
+spec:
+  storageClassName: manual 
+  capacity:
+    storage: 100Gi
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  hostPath:
+    path: "/data/local-cache-{{.Release.Name}}" 
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{.Release.Name}}-local-cache
+spec:
+  volumeName: {{.Release.Name}}-local-cache
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 100Gi
+  storageClassName: manual

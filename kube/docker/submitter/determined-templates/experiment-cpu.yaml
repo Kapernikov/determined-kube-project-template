@@ -1,0 +1,35 @@
+description: ${NAME} Experiment template (CPU only)
+max_restarts: 0
+resources:
+  slots: 0
+environment:
+  image: ${IMAGE_CPU}
+  pod_spec:
+    apiVersion: v1
+    kind: Pod
+    spec:
+      imagePullSecrets:
+        - name: ${IMAGEPULLSECRET}
+      containers:
+        - name: determined-container
+          resources:
+            requests:
+              memory: "64Mi"
+              cpu: "1"
+          volumeMounts:
+            - name: dvc-cache
+              mountPath: /data/persistent-cache
+            - name: per-node-cache
+              mountPath: /data/node-cache
+          envFrom:
+          - secretRef:
+              name: ${STORAGE_SECRET}
+      volumes:
+        - name: dvc-cache
+          persistentVolumeClaim:
+            claimName: ${NETWORKCACHE}
+        - name: per-node-cache
+          persistentVolumeClaim:
+            claimName: ${LOCALCACHE}
+  environment_variables:
+    - GIT_SSH_COMMAND=ssh -i /root/.ssh/id_rsa

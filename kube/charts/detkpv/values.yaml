@@ -1,0 +1,21 @@
+images:
+  environments:
+    gpu: determinedai/environments:cuda-11.1-pytorch-1.9-lightning-1.5-tf-2.4-gpu-5158dec
+    cpu: determinedai/environments:py-3.8-pytorch-1.9-lightning-1.5-tf-2.4-cpu-5158dec
+  submitter: submitter
+
+secrets:
+  imagePullSecrets: registry-creds
+
+determined:
+  # this will work if determined is running in the same namespace: just put the name of the determined service
+  master: determined-master-service-determined
+  ## this will work if determined is running in the "determined" namespace
+  #master: determined-master-service-determined.determined.svc.cluster.local
+
+volumes:
+  persistent:
+    accessMode: "ReadWriteMany"
+    storateClass: "nfs"
+  local:
+    hostPathPrefix: "/data"

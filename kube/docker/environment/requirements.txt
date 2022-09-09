@@ -1,0 +1,8 @@
+opencv-python
+imgaug
+doit
+albumentations
+dvc[azure]==2.8.1
+tensorboardx
+pycocotools
+

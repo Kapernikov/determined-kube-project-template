@@ -1,0 +1,40 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: register-{{.Release.Name}}-template
+  annotations:
+    "helm.sh/hook": post-install,post-upgrade
+    "helm.sh/hook-weight": "-5"
+    "helm.sh/hook-delete-policy": hook-succeeded
+spec:
+{{ if semverCompare ">=1.19-0" .Capabilities.KubeVersion.GitVersion }}
+  ttlSecondsAfterFinished: 10
+{{ end }}
+  template:
+    spec:
+      imagePullSecrets:
+        - name: {{ .Values.secrets.imagePullSecrets }}
+      containers:
+      - name: submit
+        env:
+            - name: NAME
+              value: {{ .Release.Name }}
+            - name: IMAGEPULLSECRET
+              value: {{ .Values.secrets.imagePullSecrets }}
+            - name: STORAGE_SECRET
+              value: {{.Release.Name}}-storage
+            - name: NETWORKCACHE
+              value: {{.Release.Name}}-dvc-cache
+            - name: LOCALCACHE
+              value: {{.Release.Name}}-local-cache
+            - name: IMAGE_GPU
+              value: {{ .Values.images.environments.gpu }}
+            - name: IMAGE_CPU
+              value: {{ .Values.images.environments.cpu }}
+            - name: DETERMINED_MASTER
+              value: {{ .Values.determined.master }}
+            - name: NOTEBOOKS
+              value: {{.Release.Name}}-notebooks-persistence
+        image: {{ .Values.images.submitter }}
+      restartPolicy: Never
+  backoffLimit: 4

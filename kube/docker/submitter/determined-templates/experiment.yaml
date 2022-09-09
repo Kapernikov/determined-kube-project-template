@@ -1,0 +1,34 @@
+description: ${NAME} Experiment template (GPU)
+max_restarts: 0
+environment:
+  image: ${IMAGE_GPU}
+  pod_spec:
+    apiVersion: v1
+    kind: Pod
+    spec:
+      runtimeClassName: nvidia
+      imagePullSecrets:
+        - name: ${IMAGEPULLSECRET}
+      containers:
+        - name: determined-container
+          resources:
+            requests:
+              memory: "64Mi"
+              cpu: "1"
+          volumeMounts:
+            - name: dvc-cache
+              mountPath: /data/persistent-cache
+            - name: per-node-cache
+              mountPath: /data/node-cache
+          envFrom:
+          - secretRef:
+              name: ${STORAGE_SECRET}
+      volumes:
+        - name: dvc-cache
+          persistentVolumeClaim:
+            claimName: ${NETWORKCACHE}
+        - name: per-node-cache
+          persistentVolumeClaim:
+            claimName: ${LOCALCACHE}
+  environment_variables:
+    - GIT_SSH_COMMAND=ssh -i /root/.ssh/id_rsa
