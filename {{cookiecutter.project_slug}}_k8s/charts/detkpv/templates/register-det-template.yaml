@@ -1,3 +1,4 @@
+{% raw %}
 apiVersion: batch/v1
 kind: Job
 metadata:
@@ -38,3 +39,4 @@ spec:
         image: {{ .Values.images.submitter }}
       restartPolicy: Never
   backoffLimit: 4
+{% endraw %}

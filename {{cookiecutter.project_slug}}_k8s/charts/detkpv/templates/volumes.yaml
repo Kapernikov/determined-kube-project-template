@@ -1,3 +1,4 @@
+{% raw %}
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
@@ -48,3 +49,4 @@ spec:
     requests:
       storage: 100Gi
   storageClassName: manual
+{% endraw %}
